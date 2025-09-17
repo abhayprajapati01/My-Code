@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Three.js for 3D element -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        html {
+            /* Changes the default cursor to a question mark */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>'), auto;
+        }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000000;
+            color: #e2e8f0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.9;
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        }
+        .gradient-hover {
+            transition: color 0.3s ease;
+        }
+        .gradient-hover:hover {
+            background: linear-gradient(45deg, #a5b4fc, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-container {
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+        }
+        /* Updated Button Styles for visibility */
+        .btn-primary {
+            @apply inline-flex items-center justify-center gap-2 px-6 py-2 font-mono text-sm tracking-widest text-slate-200 bg-transparent border border-slate-500 rounded-md transition-all duration-300;
+        }
+        .btn-primary:hover {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-color: #6366f1;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+            animation: glitch-effect 0.25s linear;
+        }
+        .btn-secondary {
+            @apply px-6 py-2 font-mono text-sm tracking-widest text-slate-200 bg-slate-800 rounded-md transition-all duration-300 transform hover:scale-105;
+        }
+        .btn-secondary:hover {
+            background-color: #6366f1;
+            color: #fff;
+            animation: glitch-effect 0.25s linear;
+        }
+        .skill-badge {
+            @apply inline-block bg-slate-800 border border-slate-700 text-slate-300 text-sm font-semibold px-4 py-2 rounded-full;
+        }
+        .hero-text-glow {
+            text-shadow: 0 0 15px rgba(255,255,255,0.3), 
+                         0 0 30px rgba(99, 102, 241, 0.8), 
+                         0 0 50px rgba(99, 102, 241, 0.6),
+                         0 0 90px rgba(99, 102, 241, 0.4);
+        }
+        
+        .content-blur {
+            filter: blur(5px);
+            transition: filter 0.3s ease-in-out;
+            pointer-events: none;
+        }
+
+        #resume-modal {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        @keyframes glitch-effect {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-2px, 2px); }
+            50% { transform: translate(2px, -2px); }
+            75% { transform: translate(-2px, -2px); }
+            100% { transform: translate(0, 0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="main-content" class="transition-all duration-300">
+        <!-- Header & Navigation -->
+        <header class="fixed top-0 left-0 right-0 z-50 py-4" id="navbar-container">
+            <div class="w-full md:w-[85%] mx-auto px-4 md:px-0">
+                <nav class="nav-container flex justify-between items-center">
+                    <a href="#" class="text-xl font-bold tracking-widest font-mono">Abhay Prajapati</a>
+                    <div class="hidden md:flex space-x-8 items-center text-sm font-semibold tracking-widest text-slate-300">
+                        <a href="#projects" class="gradient-hover">PROJECTS</a>
+                        <a href="#about" class="gradient-hover">ABOUT</a>
+                        <a href="#contact" class="gradient-hover">CONTACT</a>
+                        <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="github" class="w-5 h-5"></i></a>
+                    </div>
+                    <a href="#" id="view-resume-btn" class="hidden md:inline-flex items-center font-mono text-sm tracking-widest text-amber-500 hover:text-amber-400 hover:underline transition-colors duration-300">
+                        VIEW RESUME;
+                    </a>
+                    <button id="mobile-menu-btn" class="md:hidden text-slate-300">
+                        <i data-lucide="menu"></i>
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden fixed inset-0 bg-black/95 z-40">
+            <div class="flex flex-col items-center justify-center h-full space-y-8 font-semibold tracking-widest">
+                <a href="#home" class="text-2xl text-slate-300 hover:text-white transition mobile-link">HOME</a>
+                <a href="#projects" class="text-2xl text-slate-300 hover:text-white transition mobile-link">PROJECTS</a>
+                <a href="#about" class="text-2xl text-slate-300 hover:text-white transition mobile-link">ABOUT</a>
+                <a href="#contact" class="text-2xl text-slate-300 hover:text-white transition mobile-link">CONTACT</a>
+                <button id="close-mobile-menu" class="absolute top-6 right-6 text-slate-300">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <main class="container mx-auto px-6 relative z-10">
+
+            <!-- Hero Section -->
+            <section id="home" class="min-h-screen flex flex-col items-center justify-center text-center">
+                <!-- This div is a spacer to push content below the fixed header -->
+                <div class="h-24"></div>
+                <div class="space-y-6 flex-grow flex flex-col items-center justify-center">
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight hero-text-glow">
+                        <span class="block">Design meets Development.</span>
+                    </h1>
+                    <p class="max-w-2xl mx-auto text-lg md:text-xl text-slate-300">
+                       Building digital experiences with code.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                        <a href="#projects" class="btn-primary">View My Work</a>
+                        <a href="#contact" class="btn-secondary">Get In Touch</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="py-20 lg:py-32">
+                <div class="grid md:grid-cols-5 gap-10 items-center">
+                    <div class="md:col-span-2">
+                        <div class="p-2">
+                             <img src="assets/Screenshot 2025-07-31 221712.png" alt="Abhay Prajapati" class="rounded-full object-cover w-full h-full border-4 border-slate-800">
+                        </div>
+                    </div>
+                    <div class="md:col-span-3 space-y-6">
+                        <h2 class="text-3xl md:text-4xl font-bold">About Me</h2>
+                        <p class="text-slate-300 text-lg">
+                            Hello! I'm a passionate engineering student on the verge of graduation. While my academic background is in engineering, my heart lies in software development, specifically in creating intuitive and impactful mobile applications.
+                        </p>
+                        <p class="text-slate-300 text-lg">
+                            I thrive on challenges and am constantly learning new technologies. My goal is to merge my engineering problem-solving skills with my creative drive to build apps that make a difference. I'm currently seeking opportunities where I can contribute, learn, and grow as a developer.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skills" class="py-20 lg:py-32">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">My Tech Stack</h2>
+                    <p class="text-slate-300 mt-2">Technologies I've been working with recently.</p>
+                </div>
+                <div class="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="smartphone" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">Flutter</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="box" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">Dart</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="swatch-book" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">Android (Java)</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="apple" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">iOS (Swift)</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="braces" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">JavaScript</p>
+                    </div>
+                     <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="atom" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">React Native</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="database" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">Firebase</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="git-branch" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">Git & GitHub</p>
+                    </div>
+                    <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="figma" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">Figma</p>
+                    </div>
+                     <div class="flex flex-col items-center p-4 glass-card rounded-lg">
+                        <i data-lucide="code" class="w-12 h-12 text-indigo-400"></i><p class="mt-4 font-semibold">VS Code</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects" class="py-20 lg:py-32">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Featured Projects</h2>
+                    <p class="text-slate-300 mt-2">Here's some of the work I'm most proud of.</p>
+                </div>
+
+                <div class="grid md:grid-cols-1 gap-10">
+                    <!-- Project 1 -->
+                    <div class="grid md:grid-cols-2 gap-8 items-center glass-card p-6 rounded-xl overflow-hidden">
+                        <img src="https://placehold.co/1280x800/171717/818cf8?text=Project+1+Screenshot" alt="Project 1" class="rounded-lg shadow-lg w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                        <div class="space-y-4">
+                            <h3 class="text-2xl font-bold text-indigo-400">Project Title One</h3>
+                            <p class="text-slate-300">
+                                A brief, compelling description of your project. Explain the problem it solves and the key features. Keep it concise and focused on the outcome.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-badge">Flutter</span><span class="skill-badge">Firebase</span><span class="skill-badge">Bloc</span>
+                            </div>
+                            <div class="flex space-x-4 pt-2">
+                                <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="github" class="w-6 h-6"></i></a>
+                                <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="external-link" class="w-6 h-6"></i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2 -->
+                     <div class="grid md:grid-cols-2 gap-8 items-center glass-card p-6 rounded-xl overflow-hidden">
+                         <div class="space-y-4 md:order-2">
+                            <h3 class="text-2xl font-bold text-indigo-400">Project Title Two</h3>
+                            <p class="text-slate-300">
+                                Another project description. You can talk about a different technology or a unique challenge you overcame. Highlight your learning and achievements.
+                            </p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="skill-badge">React Native</span><span class="skill-badge">Node.js</span><span class="skill-badge">MongoDB</span>
+                            </div>
+                            <div class="flex space-x-4 pt-2">
+                                <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="github" class="w-6 h-6"></i></a>
+                                <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="external-link" class="w-6 h-6"></i></a>
+                            </div>
+                        </div>
+                        <img src="https://placehold.co/1280x800/171717/4338ca?text=Project+2+Screenshot" alt="Project 2" class="rounded-lg shadow-lg w-full h-full object-cover transition-transform duration-500 hover:scale-105 md:order-1">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Section -->
+            <section id="contact" class="py-20 lg:py-32 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold">Let's Connect!</h2>
+                <p class="max-w-xl mx-auto text-slate-300 mt-4 mb-8">
+                    I'm currently open to new opportunities and collaborations. Feel free to reach out if you have a project in mind, want to connect, or just say hi!
+                </p>
+                <a href="mailto:your.email@example.com" class="btn-primary inline-block">
+                    Get In Touch
+                </a>
+                <div class="flex justify-center space-x-6 mt-10">
+                    <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="github" class="w-8 h-8"></i></a>
+                    <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="linkedin" class="w-8 h-8"></i></a>
+                    <a href="#" class="text-slate-300 hover:text-white transition"><i data-lucide="twitter" class="w-8 h-8"></i></a>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-slate-900 relative z-10">
+            <div class="container mx-auto px-6 py-6 text-center text-slate-500">
+                <p>&copy; 2025 Abhay Prajapati. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Resume Modal -->
+    <div id="resume-modal" class="hidden fixed inset-0 z-[100] items-center justify-center p-4">
+        <div class="fixed inset-0 bg-black/80" id="modal-overlay"></div>
+        <div class="relative w-full h-full max-w-4xl max-h-[90vh] bg-slate-900 rounded-lg shadow-xl flex flex-col z-10">
+            <div class="flex items-center justify-between p-4 border-b border-slate-700">
+                <h3 class="text-lg font-semibold text-white">My Resume</h3>
+                <button id="close-modal-btn" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            <div class="flex-grow p-1 md:p-4">
+                <!-- IMPORTANT: Replace this src with the actual URL or path to your resume PDF -->
+                <iframe src="assets/Abhay Resume 1.0.pdf" class="w-full h-full" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        lucide.createIcons();
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileMenuBtn.addEventListener('click', () => mobileMenu.classList.remove('hidden'));
+        closeMobileMenuBtn.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+        mobileLinks.forEach(link => link.addEventListener('click', () => mobileMenu.classList.add('hidden')));
+
+        // Resume Modal Toggle
+        const viewResumeBtn = document.getElementById('view-resume-btn');
+        const resumeModal = document.getElementById('resume-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const mainContent = document.getElementById('main-content');
+        const modalOverlay = document.getElementById('modal-overlay');
+
+        const openModal = () => {
+            resumeModal.classList.remove('hidden');
+            resumeModal.classList.add('flex');
+            mainContent.classList.add('content-blur');
+        };
+
+        const closeModal = () => {
+            resumeModal.classList.add('hidden');
+            resumeModal.classList.remove('flex');
+            mainContent.classList.remove('content-blur');
+        };
+
+        viewResumeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+        });
+
+        closeModalBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', closeModal);
+
+
+        // --- Three.js 3D Background ---
+        let scene, camera, renderer, codeParticlesGroup;
+
+        // Helper function to create textures from text
+        function createSymbolTexture(symbol) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 128; // Increased from 64 to prevent clipping
+            canvas.height = 64;
+            context.font = '48px Space Grotesk';
+            context.fillStyle = 'rgba(165, 180, 252, 0.8)'; // Indigo-300
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(symbol, canvas.width / 2, canvas.height / 2);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({
+                canvas: document.getElementById('bg-canvas'),
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Create the particle system with code symbols
+            const symbols = ['{}', '/>', '()', '=>', '[]', '""', '&&', '||', '!='];
+            const particleCount = 500;
+            codeParticlesGroup = new THREE.Group();
+
+            for (let i = 0; i < particleCount; i++) {
+                const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+                const texture = createSymbolTexture(symbol);
+                const material = new THREE.SpriteMaterial({ 
+                    map: texture,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const particle = new THREE.Sprite(material);
+
+                particle.position.x = Math.random() * 20 - 10;
+                particle.position.y = Math.random() * 20 - 10;
+                particle.position.z = Math.random() * 20 - 10;
+                
+                particle.scale.set(0.3, 0.3, 0.3);
+
+                codeParticlesGroup.add(particle);
+            }
+            scene.add(codeParticlesGroup);
+            
+            camera.position.z = 8;
+
+            animate();
+        }
+
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Animate particles
+            codeParticlesGroup.children.forEach(particle => {
+                particle.position.y -= 0.005;
+                if (particle.position.y < -10) {
+                    particle.position.y = 10;
+                }
+            });
+
+            // Animate group based on scroll
+            const scrollY = window.pageYOffset;
+            codeParticlesGroup.rotation.y = scrollY * 0.0003;
+            codeParticlesGroup.rotation.x = scrollY * 0.0003;
+
+
+            // Interactive movement based on mouse
+            const targetX = mouseX * 0.5;
+            const targetY = mouseY * 0.5;
+
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (targetY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        init();
+    </script>
+</body>
+</html>
+
