@@ -1084,8 +1084,7 @@
 
           <h3 class="h3 form-title">Contact Form</h3>
 
-          <form action="https://script.google.com/macros/s/AKfycbxw2rMmwIu_wHYq_9IWYbJcwtI2-zXrsrFXSxgdDRD2ei48HbEKLkrjKe08fCf53-7OwQ/exec" method="POST" class="form">
-
+          <form id="contact-form" class="form">
   <div class="input-wrapper">
     <input type="text" name="fullname" class="form-input" placeholder="Full name" required>
     <input type="email" name="email" class="form-input" placeholder="Email address" required>
@@ -1097,8 +1096,29 @@
     <ion-icon name="paper-plane"></ion-icon>
     <span>Send Message</span>
   </button>
-
 </form>
+
+<p id="form-status"></p>
+
+<script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbx0v7N01sy3f-3FXUogEQvRkBA-ceO7eKILqIFn56mutQ6YQscM1rwUtk3WGIC64ug4Xg/exec";
+  const form = document.getElementById("contact-form");
+  const status = document.getElementById("form-status");
+
+  form.addEventListener("submit", e => {
+    e.preventDefault(); // stop normal form redirect
+    fetch(scriptURL, { method: "POST", body: new FormData(form)})
+      .then(() => {
+        status.innerHTML = "✅ Message sent successfully!";
+        form.reset();
+      })
+      .catch(err => {
+        status.innerHTML = "❌ Something went wrong!";
+        console.error(err);
+      });
+  });
+</script>
+
 
         </section>
 
