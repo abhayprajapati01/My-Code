@@ -334,6 +334,7 @@ main {
 .avatar-box {
   background: var(--bg-gradient-onyx);
   border-radius: 20px;
+  position: relative;
 }
 
 .info-content .name {
@@ -344,14 +345,39 @@ main {
   margin-bottom: 10px;
 }
 
+.info-content .title-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  width: 100%;
+}
+
 .info-content .title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   color: var(--white-1);
   background: var(--onyx);
   font-size: var(--fs-8);
   font-weight: var(--fw-300);
-  width: max-content;
-  padding: 3px 12px;
-  border-radius: 8px;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+.info-content .title:last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+.info-content .title-badge {
+  background: var(--orange-yellow-crayola);
+  color: var(--smoky-black);
+  font-size: 11px;
+  font-weight: var(--fw-600);
+  padding: 2px 8px;
+  border-radius: 20px;
+  line-height: 1.4;
 }
 
 .info_more-btn {
@@ -1345,6 +1371,8 @@ textarea.form-input::-webkit-resizer { display: none; }
 
   .info-content .name { margin-bottom: 15px; }
 
+  .info-content .title-group { grid-template-columns: 1fr 1fr; }
+
   .info-content .title { padding: 5px 18px; }
 
   .info_more-btn {
@@ -1859,6 +1887,25 @@ textarea.form-input::-webkit-resizer { display: none; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    position: relative;
+  }
+
+  .contact-info .contact-link[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: var(--eerie-black-2);
+    color: var(--orange-yellow-crayola);
+    font-size: var(--fs-8);
+    font-weight: var(--fw-400);
+    padding: 7px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--jet);
+    box-shadow: var(--shadow-2);
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
   }
 
   .contact-info :is(.contact-link, time, address) {
@@ -1922,23 +1969,89 @@ textarea.form-input::-webkit-resizer { display: none; }
   color: inherit; /* This makes them inherit the yellow color from the parent 'a' tag */
 }
 
-@media (min-width: 1250px) {
-    .active-status {
-        height: 12px;
-        width: 12px;
-        border-radius: 50%;
-        background-color: #39ff14;
-        animation: 1.5s pulse infinite 
-ease-in-out;
-        position: absolute;
-        bottom: 111px;
-        right: 35px;
-    }
+.active-status {
+  height: 18px;
+  width: 18px;
+  border-radius: 50%;
+  background-color: #39ff14;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  border: 3px solid var(--smoky-black);
+  animation: pulse 1.5s infinite ease-in-out;
 }
 
-element.style {
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(57, 255, 20, 0); }
 }
 
-    pulse animation {
-    box-shadow: rgba(57, 255, 20, 0.263) 0px 0px 0px 10.3046px;
+.cv-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: hsla(0, 0%, 0%, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.cv-modal-overlay.active { display: flex; }
+
+.cv-modal-box {
+  background: var(--eerie-black-2);
+  border: 1px solid var(--jet);
+  border-radius: 16px;
+  box-shadow: var(--shadow-5);
+  width: 100%;
+  max-width: 860px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.cv-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--jet);
+  color: var(--light-gray);
+  font-size: var(--fs-7);
+  font-weight: var(--fw-500);
+  flex-shrink: 0;
+}
+
+.cv-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cv-download-btn,
+.cv-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--onyx);
+  color: var(--orange-yellow-crayola);
+  font-size: 18px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-1);
+}
+
+.cv-download-btn:hover,
+.cv-close-btn:hover { background: var(--jet); }
+
+.cv-iframe {
+  width: 100%;
+  flex: 1;
+  border: none;
 }
