@@ -15,7 +15,7 @@
   <!--
     - custom css link
   -->
-  <link rel="stylesheet" href="./assets/css/style.css?v=2">
+  <link rel="stylesheet" href="./assets/css/style.css?v=3">
 
   <!--
     - google font link
@@ -51,7 +51,7 @@
           <h1 class="name" title="Richard hanrick">Abhay Prajapati</h1>
 
           <div class="title-group">
-            <p class="title">Full Stack Developer</p>
+            <p class="title">Full Stack Dev</p>
             <p class="title">App Developer</p>
             <p class="title">UI UX Designer</p>
           </div>
@@ -1108,19 +1108,25 @@
 
           <h3 class="h3 form-title">Contact Form</h3>
 
-         <form action="#" method="POST" class="form">
-           <div class="input-wrapper"> 
-             <input type="text" name="fullname" class="form-input" placeholder="Full name" required> 
-             <input type="email" name="email" class="form-input" placeholder="Email address" required> 
-           </div> <textarea name="message" class="form-input" placeholder="Your Message" required>
-             
-           </textarea> <button class="form-btn" type="submit"> 
-             <ion-icon name="paper-plane">
-               
-             </ion-icon> <span>Send Message</span> 
-           </button> 
-         </form>
+          <form id="contact-form" action="https://api.web3forms.com/submit" method="POST" class="form">
+            <input type="hidden" name="access_key" value="5ea57ef5-7e99-4813-9985-8338e1f39fb4">
+            <input type="hidden" name="subject" value="New Message from Portfolio">
+            <input type="hidden" name="from_name" value="Abhay Prajapati Portfolio">
+            <input type="checkbox" name="botcheck" style="display:none">
 
+            <div class="input-wrapper">
+              <input type="text" name="fullname" class="form-input" placeholder="Full name" required>
+              <input type="email" name="email" class="form-input" placeholder="Email address" required>
+            </div>
+            <textarea name="message" class="form-input" placeholder="Your Message" required></textarea>
+
+            <div id="form-result" class="form-result" style="display:none"></div>
+
+            <button class="form-btn" type="submit" id="submit-btn">
+              <ion-icon name="paper-plane"></ion-icon>
+              <span>Send Message</span>
+            </button>
+          </form>
 
         </section>
 
@@ -1157,6 +1163,43 @@
   </div>
 
   <script src="./assets/js/script.js"></script>
+
+  <script>
+    const contactForm = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const formResult = document.getElementById('form-result');
+
+    contactForm && contactForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.querySelector('span').textContent = 'Sending...';
+      formResult.style.display = 'none';
+
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: new FormData(contactForm)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          formResult.textContent = 'Message sent! I\'ll get back to you soon.';
+          formResult.className = 'form-result form-result--success';
+          formResult.style.display = 'block';
+          contactForm.reset();
+        } else {
+          throw new Error(data.message || 'Submission failed');
+        }
+      } catch (err) {
+        formResult.textContent = 'Something went wrong. Try emailing directly.';
+        formResult.className = 'form-result form-result--error';
+        formResult.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.querySelector('span').textContent = 'Send Message';
+      }
+    });
+  </script>
 
   <!--
     - ionicon link
