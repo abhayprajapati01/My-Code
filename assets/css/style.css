@@ -1872,6 +1872,8 @@ textarea.form-input::-webkit-resizer { display: none; }
     text-align: center;
   }
 
+  .info-content .title-group { grid-template-columns: 1fr; }
+
   .info-content .title { margin: auto; }
 
   .info_more-btn { display: none; }
@@ -1975,8 +1977,8 @@ textarea.form-input::-webkit-resizer { display: none; }
   border-radius: 50%;
   background-color: #39ff14;
   position: absolute;
-  bottom: -2px;
-  right: -2px;
+  bottom: 4px;
+  right: 4px;
   border: 3px solid var(--smoky-black);
   animation: pulse 1.5s infinite ease-in-out;
 }
