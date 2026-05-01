@@ -2095,8 +2095,6 @@ textarea.form-input::-webkit-resizer { display: none; }
 
 .phone-blurred {
   cursor: pointer;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0;
+  white-space: nowrap !important;
+  display: inline-block !important;
 }
