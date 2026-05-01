@@ -157,3 +157,17 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
   });
 }
+
+function activateContactTab(e) {
+  e.preventDefault();
+  for (let i = 0; i < pages.length; i++) {
+    if (pages[i].dataset.page === "contact") {
+      pages[i].classList.add("active");
+      navigationLinks[i].classList.add("active");
+    } else {
+      pages[i].classList.remove("active");
+      navigationLinks[i].classList.remove("active");
+    }
+  }
+  window.scrollTo(0, 0);
+}

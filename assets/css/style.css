@@ -2086,3 +2086,17 @@ textarea.form-input::-webkit-resizer { display: none; }
   flex: 1;
   border: none;
 }
+
+/* Phone number blur */
+.blurred-num {
+  filter: blur(3px);
+  user-select: none;
+}
+
+.phone-blurred {
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+}
